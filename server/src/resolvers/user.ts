@@ -56,7 +56,7 @@ export class UserResolver {
     @Mutation(() => UserResponse)
     async register(
         @Arg('options', () => UsernamePasswordInput) options: UsernamePasswordInput,
-        @Ctx() {em}: MyContext
+        @Ctx() {em, req}: MyContext
     ): Promise<UserResponse> {
         if (options.username.length <= 2) {
             return {
@@ -86,8 +86,9 @@ export class UserResolver {
         try {
             await em.persistAndFlush(user)
         } catch (error) {
+            // || error.detail.includes("already exists")
             // duplicate username error
-            if (error.code === "23505" || error.detail.includes("already exists")){
+            if (error.code === "23505"){
                 return {
                     errors: [
                         {
@@ -98,6 +99,9 @@ export class UserResolver {
                 };
             }
         }
+
+        req.session.userId = user.id;
+        
         return { user };
     }
 

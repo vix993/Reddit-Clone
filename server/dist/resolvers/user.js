@@ -77,7 +77,7 @@ let UserResolver = class UserResolver {
             return user;
         });
     }
-    register(options, { em }) {
+    register(options, { em, req }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (options.username.length <= 2) {
                 return {
@@ -108,7 +108,7 @@ let UserResolver = class UserResolver {
                 yield em.persistAndFlush(user);
             }
             catch (error) {
-                if (error.code === "23505" || error.detail.includes("already exists")) {
+                if (error.code === "23505") {
                     return {
                         errors: [
                             {
@@ -119,6 +119,7 @@ let UserResolver = class UserResolver {
                     };
                 }
             }
+            req.session.userId = user.id;
             return { user };
         });
     }
