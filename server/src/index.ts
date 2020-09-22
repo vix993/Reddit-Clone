@@ -1,8 +1,8 @@
 import 'reflect-metadata';
-import { MikroORM } from '@mikro-orm/core';
+// import { MikroORM } from '@mikro-orm/core';
 import { COOKIE_NAME, __prod__ } from './constants';
-// import { Post } from './entities/Post';
-import microConfig from './mikro-orm.config';
+import { Post } from './entities/Post';
+// import microConfig from './mikro-orm.config';
 import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
 import { buildSchema } from 'type-graphql';
@@ -13,12 +13,24 @@ import Redis from 'ioredis';
 import session from 'express-session';
 import connectRedis from 'connect-redis';
 import cors from 'cors';
-// import { User } from './entities/User';
+import { createConnection } from 'typeorm';
+import { User } from './entities/User';
 
 const main = async () => {
-    const orm = await MikroORM.init(microConfig);
+    const conn = await createConnection({
+        type: 'postgres',
+        database: 'lireddit2',
+        username: 'postgres',
+        password: 'postgres',
+        logging: true,
+        synchronize: true,
+        port: 1234,
+        entities: [Post, User],
+    });
+    
+    // const orm = await MikroORM.init(microConfig);
     // orm.em.nativeDelete(User, {}); in case of database discrepancies (development)
-    await orm.getMigrator().up();
+    // await orm.getMigrator().up();
 
     const app = express();
 
@@ -55,7 +67,7 @@ const main = async () => {
              resolvers: [HelloResolver, PostResolver, UserResolver],
              validate: false,
          }),
-         context: ({ req, res }) => ({ em: orm.em, req, res, redis }),
+         context: ({ req, res }) => ({ req, res, redis }),
     });
 
     apolloServer.applyMiddleware({ app, cors: false, });
