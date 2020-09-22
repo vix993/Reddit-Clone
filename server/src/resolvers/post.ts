@@ -1,5 +1,15 @@
-import { Resolver, Query, Arg, Mutation } from "type-graphql";
+import { MyContext } from "../types";
+import { Resolver, Query, Arg, Mutation, Field, InputType, Ctx, UseMiddleware } from "type-graphql";
 import { Post } from "../entities/Post";
+import { isAuth } from "../middleware/isAuth";
+
+@InputType()
+class PostInput {
+    @Field()
+    title: string
+    @Field()
+    text: string
+}
 
 @Resolver()
 export class PostResolver {
@@ -12,10 +22,17 @@ export class PostResolver {
         return Post.findOne(id);
     }
 
-    @Mutation(() => Post, { nullable: true })
-    async createPost(@Arg("title", () => String) title: string): Promise<Post> {
+    @Mutation(() => Post)
+    @UseMiddleware(isAuth)
+    async createPost(
+        @Arg("input") input: PostInput,
+        @Ctx() {req}: MyContext
+    ): Promise<Post> {
         //2 sql queries
-        return Post.create({title}).save();
+        return Post.create({
+            ...input,
+            creatorId: req.session.userId,
+        }).save();
     }
 
     // If we want to make things nullable,
