@@ -17,7 +17,6 @@ import { createConnection } from 'typeorm';
 import { User } from './entities/User';
 import path from 'path';
 
-
 // rerun
 const main = async () => {
     const conn = await createConnection({
@@ -35,6 +34,8 @@ const main = async () => {
     // const orm = await MikroORM.init(microConfig);
     // orm.em.nativeDelete(User, {}); in case of database discrepancies (development)
     // await orm.getMigrator().up();
+
+    // await Post.delete({});
 
     const app = express();
 
