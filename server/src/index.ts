@@ -16,6 +16,7 @@ import cors from 'cors';
 import { createConnection } from 'typeorm';
 import { User } from './entities/User';
 import path from 'path';
+import { Updoot } from './entities/Updoot';
 
 // rerun
 const main = async () => {
@@ -28,7 +29,7 @@ const main = async () => {
         synchronize: true,
         migrations: [path.join(__dirname, "./migrations/*")],
         port: 1234,
-        entities: [Post, User],
+        entities: [Post, User, Updoot],
     });
     conn.runMigrations();
     // const orm = await MikroORM.init(microConfig);
