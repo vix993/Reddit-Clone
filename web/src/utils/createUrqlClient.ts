@@ -5,6 +5,7 @@ import { betterUpdateQuery } from "./betterUpdateQuery";
 import { pipe, tap } from 'wonka';
 import Router from "next/router";
 import gql from 'graphql-tag';
+import { isServer } from "./isServer";
 
 export const errorExchange: Exchange = ({ forward }) => ops$ => {
   return pipe(
@@ -107,10 +108,19 @@ export const cursorPagination = (): Resolver => {
 };
 
 
-export const createUrqlClient = (ssrExchange: any) => ({
+export const createUrqlClient = (ssrExchange: any, ctx: any) => {
+  let cookie = ''
+  
+  if (isServer()) {
+    cookie = ctx.req.headers.cookie;
+  }
+  return ({
     url: 'http://localhost:4000/graphql',
   fetchOptions: {
     credentials: "include" as const,
+    headers: cookie ? {
+      cookie,
+    } : undefined
   }, 
   exchanges: [dedupExchange, cacheExchange({
     keys: {
@@ -198,4 +208,4 @@ export const createUrqlClient = (ssrExchange: any) => ({
   errorExchange,
   ssrExchange,
   fetchExchange],
-});
+})};
