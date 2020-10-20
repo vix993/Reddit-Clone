@@ -71,7 +71,7 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
             <Flex flex={1} m="auto" maxWidth={800} align="center">
                 <NextLink href="/">
                     <Link>
-                        <Heading>LiReddit</Heading>
+                        <Heading color="white">LiReddit</Heading>
                     </Link>
                 </NextLink>
                 <Box ml={'auto'}>
