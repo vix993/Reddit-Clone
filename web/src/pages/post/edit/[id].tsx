@@ -7,11 +7,17 @@ import { InputField } from '../../../components/InputField';
 import { Layout } from '../../../components/Layout';
 import { usePostQuery, useUpdatePostMutation } from '../../../generated/graphql';
 import { createUrqlClient } from '../../../utils/createUrqlClient';
-import { useGetPostFromUrl } from '../../../utils/useGetPostFromUrl';
-import createPost from '../../create-post';
+import { useGetIntId } from '../../../utils/useGetIntId';
 
 const EditPost = ({}) => {
-    const [{ data, fetching}] = useGetPostFromUrl();
+    const router = useRouter();
+    const intId = useGetIntId();
+    const [{ data, fetching}] = usePostQuery({
+        pause: intId === -1,
+        variables: {
+            id: intId,
+        }
+    });
     const [, updatePost] = useUpdatePostMutation();
     if (fetching) {
         return (
@@ -32,7 +38,8 @@ const EditPost = ({}) => {
                 <Formik
                     initialValues={{ title: data.post.title, text: data.post.text }}
                     onSubmit={async (values, {setErrors}) => {
-                        updatePost({id:})
+                        await updatePost({id: intId, ...values});
+                        router.back();
                         // const {error} = await createPost({input: values})
                         // if (!error) {
                         //     router.push("/")
